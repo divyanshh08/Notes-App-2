@@ -50,21 +50,29 @@ let noteInput = document.querySelector("#noteInput");
 let saveBtn = document.querySelector("#saveBtn");
 let emptyMsg = document.querySelector("#emptyMsg");
 let taskList = document.querySelector("#taskList");
-let taskID = 0;
+let taskID = 1;
 let tasks = JSON.parse(localStorage.getItem("myTasks")) || [];
 
 function renderUI() {
   taskList.innerHTML = "";
 
-  if (tasks.length != 0){
+  if (tasks.length !== 0) {
     emptyMsg.textContent = "";
+  }
+  if(tasks.length === 0){
+    taskID = 1;
   }
 
   tasks.forEach((element) => {
+    // 'element' here are the objects insdie the task array.
     const card = document.createElement("div");
     const taskName = document.createElement("h1");
     const dateTime = document.createElement("h3");
     const deleteBtn = document.createElement("button");
+
+    deleteBtn.addEventListener("click", () => {
+      deleteNote(element.id);
+    });
 
     taskName.textContent = `${element.text}, ${element.id}`;
     dateTime.textContent = element.createdAt;
@@ -84,7 +92,6 @@ function renderUI() {
 
 renderUI();
 
-
 saveBtn.addEventListener("click", () => {
   if (noteInput.value.trim().length === 0) {
     console.log("Invalid Input");
@@ -100,15 +107,25 @@ saveBtn.addEventListener("click", () => {
     minute: "2-digit",
     hour12: true,
   });
-  
+
   const newTask = {
-    id: taskID + 1,
+    id: taskID,
     text: `${noteInput.value}`,
-    createdAt: `Created: ${formattedTime}`,
+    createdAt: `${formattedTime}`,
   };
+
+  taskID = taskID + 1;
+
   tasks.push(newTask);
   localStorage.setItem("myTasks", JSON.stringify(tasks));
   noteInput.value = "";
   emptyMsg.textContent = "";
   renderUI();
 });
+
+function deleteNote(noteID) {
+  tasks = tasks.filter((element) => element.id !== noteID);
+  localStorage.setItem("myTasks", JSON.stringify(tasks));
+
+  renderUI();
+}
