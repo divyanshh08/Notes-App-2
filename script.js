@@ -50,7 +50,6 @@ let noteInput = document.querySelector("#noteInput");
 let saveBtn = document.querySelector("#saveBtn");
 let emptyMsg = document.querySelector("#emptyMsg");
 let taskList = document.querySelector("#taskList");
-let taskID = 1;
 let tasks = JSON.parse(localStorage.getItem("myTasks")) || [];
 
 function renderUI() {
@@ -58,9 +57,6 @@ function renderUI() {
 
   if (tasks.length !== 0) {
     emptyMsg.textContent = "";
-  }
-  if(tasks.length === 0){
-    taskID = 1;
   }
 
   tasks.forEach((element) => {
@@ -74,7 +70,7 @@ function renderUI() {
       deleteNote(element.id);
     });
 
-    taskName.textContent = `${element.text}, ${element.id}`;
+    taskName.textContent = `${element.text}, ID : ${element.id}`;
     dateTime.textContent = element.createdAt;
     deleteBtn.textContent = "Delete";
 
@@ -93,6 +89,23 @@ function renderUI() {
 renderUI();
 
 saveBtn.addEventListener("click", () => {
+  addNote();
+});
+
+noteInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    addNote();
+  }
+});
+
+function deleteNote(noteID) {
+  tasks = tasks.filter((element) => element.id !== noteID);
+  localStorage.setItem("myTasks", JSON.stringify(tasks));
+
+  renderUI();
+}
+
+function addNote() {
   if (noteInput.value.trim().length === 0) {
     console.log("Invalid Input");
     return;
@@ -109,23 +122,14 @@ saveBtn.addEventListener("click", () => {
   });
 
   const newTask = {
-    id: taskID,
+    id: Date.now(),
     text: `${noteInput.value}`,
     createdAt: `${formattedTime}`,
   };
-
-  taskID = taskID + 1;
 
   tasks.push(newTask);
   localStorage.setItem("myTasks", JSON.stringify(tasks));
   noteInput.value = "";
   emptyMsg.textContent = "";
-  renderUI();
-});
-
-function deleteNote(noteID) {
-  tasks = tasks.filter((element) => element.id !== noteID);
-  localStorage.setItem("myTasks", JSON.stringify(tasks));
-
   renderUI();
 }
